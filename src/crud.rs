@@ -1,9 +1,12 @@
 use anyhow::Result;
 use directories::ProjectDirs;
+use futures::TryStreamExt;
+use sqlx::Row;
 use sqlx::SqlitePool;
 
 use sqlx::sqlite::{SqliteConnectOptions, SqlitePoolOptions};
 
+use std::collections::HashMap;
 use std::path::PathBuf;
 use std::str::FromStr;
 
@@ -113,6 +116,28 @@ impl DB {
             .await?;
 
         Ok(count > 0)
+    }
+
+    pub async fn due_today(&self, card_hashes: HashMap<String, Card>) -> Result<Vec<Card>> {
+        let today = chrono::Local::now().date_naive();
+
+        let sql = "SELECT card_hash 
+           FROM cards
+           WHERE due_date <= ? OR due_date IS NULL;";
+        let mut rows = sqlx::query(sql).bind(today).fetch(&self.pool);
+        let mut cards = Vec::new();
+        while let Some(row) = rows.try_next().await? {
+            let card_hash: String = row.get("card_hash");
+            if !card_hashes.contains_key(&card_hash) {
+                continue;
+            }
+
+            if let Some(card) = card_hashes.get(&card_hash) {
+                cards.push(card.clone());
+            }
+        }
+
+        Ok(cards)
     }
 }
 

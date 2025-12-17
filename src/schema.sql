@@ -12,6 +12,8 @@ create table cards (
     review_count integer not null
 ) strict;
 
+CREATE INDEX IF NOT EXISTS idx_cards_due_date ON cards(due_date);
+
 create table sessions (
     session_id integer primary key,
     started_at text not null,

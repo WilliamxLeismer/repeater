@@ -1,3 +1,4 @@
+use std::collections::HashMap;
 use std::path::Path;
 
 use crate::card::Card;
@@ -13,7 +14,16 @@ pub async fn run(
     new_card_limit: Option<usize>,
 ) -> Result<()> {
     let cards = register_all_cards(db, paths).await?;
-    let available_card_hashes: Vec<&str> = cards.iter().map(|c| c.card_hash.as_str()).collect();
+
+    let hash_cards: HashMap<String, Card> = cards
+        .into_iter()
+        .map(|c| {
+            let hash = c.card_hash.clone();
+            (hash, c)
+        })
+        .collect();
+
+    let cards_due_today = db.due_today(hash_cards).await?;
     Ok(())
 }
 
