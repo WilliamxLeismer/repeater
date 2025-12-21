@@ -4,7 +4,7 @@
 
 <p align="center">
   <img src="create_example.png" alt="Creating cards in the built-in editor" width="45%" />
-  <img src="drill_example.png" alt="Drilling cards with the keyboard-only flow" width="45%" />
+  <img src="check_example.png" alt="Checking card progress" width="45%" />
 </p>
 
 ## Features

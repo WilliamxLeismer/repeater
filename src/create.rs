@@ -138,7 +138,9 @@ async fn capture_cards(db: &DB, card_path: &Path) -> io::Result<()> {
                     Span::styled(" save", Theme::muted()),
                     Theme::bullet(),
                     Theme::key_chip("Esc"),
-                    Span::styled(" / Ctrl+C exit", Theme::muted()),
+                    Span::styled(" / ", Theme::muted()),
+                    Theme::key_chip("Ctrl+C"),
+                    Span::styled(" exit", Theme::muted()),
                 ])];
                 help_lines.push(Line::from(vec![
                     Span::styled("Cards in collection:", Theme::muted()),

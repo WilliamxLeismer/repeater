@@ -251,7 +251,9 @@ fn instructions_text(state: &DrillState<'_>) -> Vec<Line<'static>> {
             Span::styled(" Pass", Theme::success()),
             Theme::bullet(),
             Theme::key_chip("Esc"),
-            Span::styled(" / Ctrl+C exit", Theme::muted()),
+            Span::styled(" / ", Theme::muted()),
+            Theme::key_chip("Ctrl+C"),
+            Span::styled(" exit", Theme::muted()),
         ]));
     } else {
         lines.push(Line::from(vec![
@@ -261,7 +263,9 @@ fn instructions_text(state: &DrillState<'_>) -> Vec<Line<'static>> {
             Span::styled(" show answer", Theme::muted()),
             Theme::bullet(),
             Theme::key_chip("Esc"),
-            Span::styled(" / Ctrl+C exit", Theme::muted()),
+            Span::styled(" / ", Theme::muted()),
+            Theme::key_chip("Ctrl+C"),
+            Span::styled(" exit", Theme::muted()),
         ]));
     }
 
