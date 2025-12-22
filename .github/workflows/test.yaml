@@ -9,6 +9,9 @@ on:
     branches: [ "main" ]
   workflow_dispatch:
 
+env:
+  SQLX_OFFLINE: "true"
+
 jobs:
   test:
     name: Test on Linux

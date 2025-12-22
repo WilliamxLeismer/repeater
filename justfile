@@ -1,4 +1,5 @@
 precommit:
+    cargo sqlx prepare
     cargo fmt --all -- --check
     cargo clippy --fix --allow-dirty --allow-staged
     cargo machete

@@ -1,0 +1,12 @@
+{
+  "db_name": "SQLite",
+  "query": "\n        INSERT or ignore INTO cards (\n            card_hash,\n            added_at,\n            last_reviewed_at,\n            stability,\n            difficulty,\n            interval_raw,\n            interval_days,\n            due_date,\n            review_count\n        )\n        VALUES (?, ?, NULL, NULL, NULL, NULL, 0, NULL, 0)\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 2
+    },
+    "nullable": []
+  },
+  "hash": "39b526a3c968f2ba534a10399b6bed0318e6957891f6e784a17fbd1ae7c8b694"
+}

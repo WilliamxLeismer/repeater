@@ -1,0 +1,20 @@
+{
+  "db_name": "SQLite",
+  "query": "SELECT COUNT(1) as \"count!: i64\" FROM cards WHERE card_hash = ?",
+  "describe": {
+    "columns": [
+      {
+        "name": "count!: i64",
+        "ordinal": 0,
+        "type_info": "Integer"
+      }
+    ],
+    "parameters": {
+      "Right": 1
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "c1f4c1a4d133120eda5a7f6588eb55cef32d253094286dfc62f6f4873ce47b36"
+}

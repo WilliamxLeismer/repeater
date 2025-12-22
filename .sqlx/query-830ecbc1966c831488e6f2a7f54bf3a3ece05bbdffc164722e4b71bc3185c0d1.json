@@ -1,0 +1,56 @@
+{
+  "db_name": "SQLite",
+  "query": "\n            SELECT\n                last_reviewed_at as \"last_reviewed_at?: chrono::DateTime<chrono::Utc>\",\n                stability as \"stability?: f64\",\n                difficulty as \"difficulty?: f64\",\n                interval_raw as \"interval_raw?: f64\",\n                interval_days as \"interval_days?: i64\",\n                due_date as \"due_date?: chrono::DateTime<chrono::Utc>\",\n                review_count as \"review_count!: i64\"\n            FROM cards\n            WHERE card_hash = ?\n            ",
+  "describe": {
+    "columns": [
+      {
+        "name": "last_reviewed_at?: chrono::DateTime<chrono::Utc>",
+        "ordinal": 0,
+        "type_info": "Text"
+      },
+      {
+        "name": "stability?: f64",
+        "ordinal": 1,
+        "type_info": "Float"
+      },
+      {
+        "name": "difficulty?: f64",
+        "ordinal": 2,
+        "type_info": "Float"
+      },
+      {
+        "name": "interval_raw?: f64",
+        "ordinal": 3,
+        "type_info": "Float"
+      },
+      {
+        "name": "interval_days?: i64",
+        "ordinal": 4,
+        "type_info": "Integer"
+      },
+      {
+        "name": "due_date?: chrono::DateTime<chrono::Utc>",
+        "ordinal": 5,
+        "type_info": "Text"
+      },
+      {
+        "name": "review_count!: i64",
+        "ordinal": 6,
+        "type_info": "Integer"
+      }
+    ],
+    "parameters": {
+      "Right": 1
+    },
+    "nullable": [
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      false
+    ]
+  },
+  "hash": "830ecbc1966c831488e6f2a7f54bf3a3ece05bbdffc164722e4b71bc3185c0d1"
+}

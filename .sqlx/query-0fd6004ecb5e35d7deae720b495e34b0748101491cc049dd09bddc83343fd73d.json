@@ -1,0 +1,26 @@
+{
+  "db_name": "SQLite",
+  "query": "\n            SELECT card_hash, review_count as \"review_count!: i64\"\n            FROM cards\n            WHERE due_date <= ? OR due_date IS NULL\n            ",
+  "describe": {
+    "columns": [
+      {
+        "name": "card_hash",
+        "ordinal": 0,
+        "type_info": "Text"
+      },
+      {
+        "name": "review_count!: i64",
+        "ordinal": 1,
+        "type_info": "Integer"
+      }
+    ],
+    "parameters": {
+      "Right": 1
+    },
+    "nullable": [
+      false,
+      false
+    ]
+  },
+  "hash": "0fd6004ecb5e35d7deae720b495e34b0748101491cc049dd09bddc83343fd73d"
+}
