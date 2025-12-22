@@ -307,14 +307,14 @@ mod tests {
         let card_path = PathBuf::from("test_data/test.md");
         let cards = cards_from_md(&card_path).expect("should be ok");
 
-        assert_eq!(cards.len(), 4);
+        assert_eq!(cards.len(), 8);
     }
 
     #[test]
     fn collects_cards_from_directory() {
         let dir_path = PathBuf::from("test_data");
         let cards = cards_from_dir(&dir_path).expect("should collect cards");
-        assert_eq!(cards.len(), 4);
+        assert_eq!(cards.len(), 8);
         assert!(
             cards
                 .iter()

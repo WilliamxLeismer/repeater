@@ -22,12 +22,19 @@ use crate::fsrs::update_performance;
 pub struct CardStats {
     pub total_cards_in_db: i64,
     pub num_cards: i64,
-    pub new_cards: i64,
-    pub reviewed_cards: i64,
+    pub card_lifecycles: HashMap<CardLifeCycle, i64>,
     pub due_cards: i64,
     pub overdue_cards: i64,
     pub upcoming_week: Vec<UpcomingCount>,
     pub upcoming_month: i64,
+    pub file_paths: HashMap<PathBuf, usize>,
+}
+
+#[derive(Debug, Clone, Hash, Eq, PartialEq)]
+pub enum CardLifeCycle {
+    New,
+    Young,
+    Mature,
 }
 
 #[derive(Debug, Clone)]
@@ -254,7 +261,7 @@ impl DB {
 
         let mut rows = sqlx::query(
             r#"
-            SELECT card_hash, review_count, due_date
+            SELECT card_hash, review_count, due_date, interval_raw
             FROM cards
             "#,
         )
@@ -263,15 +270,29 @@ impl DB {
         while let Some(row) = rows.try_next().await? {
             let card_hash: String = row.get("card_hash");
             stats.total_cards_in_db += 1;
-            if !card_hashes.contains_key(&card_hash) {
-                continue;
-            }
+
+            let card = match card_hashes.get(&card_hash) {
+                Some(card) => card,
+                None => continue,
+            };
+            *stats.file_paths.entry(card.file_path.clone()).or_insert(0) += 1;
 
             let review_count: i64 = row.get("review_count");
             if review_count == 0 {
-                stats.new_cards += 1;
+                *stats.card_lifecycles.entry(CardLifeCycle::New).or_insert(0) += 1;
             } else {
-                stats.reviewed_cards += 1;
+                let interval: f64 = row.get("interval_raw");
+                if interval > 21.0 {
+                    *stats
+                        .card_lifecycles
+                        .entry(CardLifeCycle::Mature)
+                        .or_insert(0) += 1;
+                } else {
+                    *stats
+                        .card_lifecycles
+                        .entry(CardLifeCycle::Young)
+                        .or_insert(0) += 1;
+                }
             }
 
             let due_date = row

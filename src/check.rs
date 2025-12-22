@@ -1,5 +1,5 @@
 use crate::{
-    crud::{CardStats, DB},
+    crud::{CardLifeCycle, CardStats, DB},
     drill::register_all_cards,
     theme::Theme,
 };
@@ -110,15 +110,38 @@ fn collection_panel(stats: &CardStats) -> Paragraph<'static> {
         Line::from(vec![
             Theme::muted_span("New"),
             Theme::bullet(),
-            Theme::label_span(format!("{}", stats.new_cards)),
-        ]),
-        Line::from(vec![
+            Theme::label_span(format!(
+                "{}",
+                *stats.card_lifecycles.get(&CardLifeCycle::New).unwrap_or(&0)
+            )),
+            Theme::bullet(),
+            Theme::muted_span("Young"),
+            Theme::bullet(),
+            Theme::label_span(format!(
+                "{}",
+                *stats
+                    .card_lifecycles
+                    .get(&CardLifeCycle::Young)
+                    .unwrap_or(&0)
+            )),
+            Theme::bullet(),
             Theme::muted_span("Mature"),
             Theme::bullet(),
-            Theme::label_span(format!("{}", stats.reviewed_cards)),
+            Theme::label_span(format!(
+                "{}",
+                *stats
+                    .card_lifecycles
+                    .get(&CardLifeCycle::Mature)
+                    .unwrap_or(&0)
+            )),
         ]),
         Line::from(vec![
-            Theme::muted_span("Indexed in DB"),
+            Theme::muted_span("Files in Collection"),
+            Theme::bullet(),
+            Theme::label_span(format!("{}", stats.file_paths.len())),
+        ]),
+        Line::from(vec![
+            Theme::muted_span("Total Cards Indexed in DB"),
             Theme::bullet(),
             Theme::label_span(format!("{}", stats.total_cards_in_db)),
         ]),
@@ -197,6 +220,16 @@ fn highlights_panel(stats: &CardStats) -> Paragraph<'static> {
     } else {
         Theme::emphasis()
     };
+    let new_cards = *stats.card_lifecycles.get(&CardLifeCycle::New).unwrap_or(&0);
+    let reviewed_cards = *stats
+        .card_lifecycles
+        .get(&CardLifeCycle::Young)
+        .unwrap_or(&0)
+        + *stats
+            .card_lifecycles
+            .get(&CardLifeCycle::Mature)
+            .unwrap_or(&0);
+
     let lines = vec![
         Line::from(vec![
             Span::styled("Focus", emphasis),
@@ -216,10 +249,7 @@ fn highlights_panel(stats: &CardStats) -> Paragraph<'static> {
         Line::from(vec![
             Theme::muted_span("Momentum"),
             Theme::bullet(),
-            Theme::label_span(format!(
-                "{} new / {} reviewed",
-                stats.new_cards, stats.reviewed_cards
-            )),
+            Theme::label_span(format!("{} new / {} reviewed", new_cards, reviewed_cards)),
         ]),
     ];
 

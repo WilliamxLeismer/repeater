@@ -9,4 +9,28 @@ A: space
 
 
 Q: what?
-A:no
+A:
+- Item one
+- Item two
+- Item three
+
+Q: What does $\euler$ evaluate to?
+A: $0$
+
+Q: State the first DeMorgan Law
+A:
+
+$$
+\neg \left( P \land Q \right) \equiv \neg P \lor \neg Q
+$$
+
+Q: What is a Docker image?
+A: A filesystem snapshot used to create a container.
+
+---
+
+Q: What is a Docker container?
+A: A running instance of an image.
+
+---
+
