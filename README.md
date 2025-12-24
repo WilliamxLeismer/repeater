@@ -17,17 +17,19 @@
 
 ## Installation
 
+### Install script (macOS + Linux)
+
+Use the included `install.sh` to grab the latest GitHub release for your platform, verify its checksum, and place the binary in `/usr/local/bin` (you may be prompted for sudo):
+
+```
+curl -fsSL https://raw.githubusercontent.com/shaankhosla/repeat/main/install.sh | bash
+```
+
+### Homebrew (macOS + Linux)
+
 ```
 brew tap shaankhosla/homebrew-tap
 brew install repeat
-```
-
-Or build from source with a recent Rust toolchain:
-
-```
-git clone https://github.com/shaankhosla/repeat
-cd repeat
-cargo install --path .
 ```
 
 ## Quick Start
