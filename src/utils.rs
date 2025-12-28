@@ -194,7 +194,10 @@ pub fn content_to_card(
             card_hash,
         })
     } else {
-        Err(anyhow!("Unable to create card: {}", card_path.display()))
+        Err(anyhow!(
+            "Unable to parse anything from card contents:\n{}",
+            contents
+        ))
     }
 }
 
@@ -231,6 +234,11 @@ pub fn cards_from_md(path: &Path) -> Result<Vec<Card>> {
                 buffer.clear();
             }
             start_idx = line_idx;
+        }
+        if line.starts_with("---") && trim_line(&buffer).is_some() {
+            cards.push(content_to_card(path, &buffer, start_idx, line_idx)?);
+            buffer.clear();
+            track_buffer = false;
         }
         if track_buffer {
             buffer.push_str(&line);
