@@ -1,8 +1,17 @@
 ## [unreleased]
 
+### 💼 Other
+
+- Workspace npm
+## [0.0.19] - 2025-12-30
+
 ### 🐛 Bug Fixes
 
 - Fix npm release
+
+### 💼 Other
+
+- Bump version
 ## [0.0.18] - 2025-12-30
 
 ### 🐛 Bug Fixes
