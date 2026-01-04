@@ -27,6 +27,11 @@
 - Terminal UX: `repeat drill` renders cards with ratatui; `repeat create` launches an editor dedicated to card capture; `repeat check` displays progress at a glance.
 - Import from Anki: convert `.apkg` exports into Markdown decks with `repeat import` so you can bring your existing collection along.
 
+
+## Documentation
+
+Installation, quick-start, and usage guides now live in the [documentation](https://shaankhosla.github.io/repeat/). 
+
 ## Installation
 
 ### Install script (Linux & macOS) - Recommended
@@ -73,8 +78,6 @@ npm install @shaankhosla/repeat
    C: Speech is [produced] in [Broca's] area.
    ```
 
-Alternatively, use the built-in editor with `repeat create cards/neuro.md`.
-
 
 2. Index the cards and start a session:
 
@@ -86,123 +89,5 @@ Alternatively, use the built-in editor with `repeat create cards/neuro.md`.
    - `1`: mark as `Fail`, `2`: mark as `Pass`.
    - `Esc` or `Ctrl+C`: end the session early (progress so far is saved).
 
-3. Check your collection status:
-
-   ```
-   repeat check cards
-   ```
-
-   The command prints totals for new/reviewed cards, due/overdue counts, and upcoming workload.
-
-## Card Format
-Files can be structured in any way, such as:
-
-```
-flashcards/
-  math.md
-  science/
-      physics.md
-      chemistry.md
-      ...
-```
-
-Cards live in ordinary Markdown. `repeat` scans for tagged sections and turns them into flashcards. This means that you can embed your active recall content alongside your regular notes using your favorite markdown editor, such as Obsidian. Also, you can leverage all of the normal advantages of using markdown files, such as using version control to back them up.
-
-- **Basic cards**
-
-  ```
-  Q: What is Coulomb's constant?
-  A: The proportionality constant of the electric force.
-  ```
-
-- **Cloze cards**
-
-  ```
-  C: The [order] of a group is [the cardinality of its underlying set].
-  ```
 
 
-### Parsing Logic
-
-- Cards are detected by the presence of a `Q:/A:` or `C:` block. The end of the card is indicated by a horizontal rule (`---`), or the start of another card.
-- Cards are hashed with Blake3; modifying the text produces a new hash and resets that card's performance history.
-- Metadata lives in `cards.db` under your OS data directory (for example, `~/Library/Application Support/repeat/cards.db` on macOS). Delete the file to discard history; the Markdown decks remain untouched.
-- Multi-line content is supported.
-
-## Commands
-
-### `repeat drill [PATH ...]`
-
-Start a terminal drilling session for one or more files/directories (default: current directory). Options:
-
-- `--card-limit <N>`: cap the number of cards reviewed this session.
-- `--new-card-limit <N>`: cap the number of unseen cards introduced.
-
-Example: drill all the physics decks and a single chemistry deck, and stop after 20 cards.
-
-```
-repeat drill flashcards/science/physics/ flashcards/science/chemistry.md --card-limit 20
-```
-
-### `repeat create <path/to/deck.md>`
-
-Launch the capture editor for a specific Markdown file (it is created if missing). Shortcuts:
-
-- `Ctrl+B`: start a basic (`Q:/A:`) template.
-- `Ctrl+K`: start a cloze (`C:`) template.
-- `Ctrl+S`: save the current card (hash collisions are rejected).
-- Arrow keys/PageUp/PageDown: move the cursor; `Tab`, `Enter`, `Backspace`, and `Delete` work as expected.
-- `Esc` or `Ctrl+C`: exit the editor.
-
-Example: open (or create) the neuro deck for editing.
-
-```
-repeat create cards/neuro.md
-```
-
-### `repeat check [PATH ...]`
-
-Re-index the referenced decks and emit counts for total, new, due, overdue, and upcoming cards so you can gauge the workload before drilling.
-
-Example: review stats for math class `flashcards/math/` before a study session.
-
-```
-repeat check flashcards/math/
-```
-
-### `repeat import <anki.apkg> <output-dir>`
-
-Convert an Anki `.apkg` export into Markdown decks. If files with the same names already exist in the export folder, they will be overwritten, so this command is safe to rerun if needed. This is a beta feature, so please report any issues on GitHub. FSRS history is not currently transferred over.
-
-Example: import `my_collection.apkg` into `cards/anki/` and start drilling right away.
-
-```
-repeat import ~/Downloads/my_collection.apkg cards/anki
-```
-
-
-## Development
-
-Run the lint/test suite with:
-
-```
-cargo fmt --all
-cargo clippy
-cargo test
-```
-
-The repository also ships a `just precommit` recipe that runs the same checks.
-
-
-## Roadmap
-
-- [X] Import from Anki
-- [ ] Allow scrolling to other cards in a collection while creating a new card
-- [ ] Edit an existing card while keeping the progress intact
-- [ ] Allow for a fuzzy search of existing cards
-- [ ] Use LLMs to import from various content sources
-
-
-## License
-
-Licensed under the Apache License, Version 2.0. See `LICENSE` for details.
