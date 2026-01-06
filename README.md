@@ -17,10 +17,10 @@
 
 `repeat` is a command-line flashcard program that uses [spaced repetition](https://en.wikipedia.org/wiki/Spaced_repetition) to boost your memory retention. It’s like a lightweight, text-based Anki you run in your terminal. Your decks are kept in Markdown, progress is tracked in SQLite, and reviews are scheduled with Free Spaced Repetition Scheduler (FSRS), a state-of-the-art algorithm targeting 90% recall.
 
-<p align="center">
-  <img src="create_example.png" alt="Creating cards in the built-in editor" width="45%" />
-  <img src="check_example.png" alt="Checking card progress" width="45%" />
-</p>
+<img src="create_example.png" alt="Creating cards in the built-in editor" />
+
+> [!NOTE]
+> You can find the main documentation, including installation guides, at [https://shaankhosla.github.io/repeat/](https://shaankhosla.github.io/repeat/).
 
 ## Features
 
@@ -31,10 +31,6 @@
 - Inline media support: reference local images/audio/video inside your decks and open them from a drill session without leaving the terminal.
 - Import from Anki: convert `.apkg` exports into Markdown decks with `repeat import` so you can bring your existing collection along.
 
-
-## Documentation
-
-Installation, quick-start, and usage guides now live in the [documentation](https://shaankhosla.github.io/repeat/). 
 
 ## Installation
 
