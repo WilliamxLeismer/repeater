@@ -2,13 +2,13 @@ use std::io;
 use std::path::PathBuf;
 use std::time::{Duration, Instant};
 
-use crate::card::{Card, CardContent};
+use crate::card::{Card, CardContent, ClozeRange};
 use crate::crud::DB;
 use crate::fsrs::{LEARN_AHEAD_THRESHOLD_MINS, ReviewStatus};
 use crate::markdown::render_markdown;
 use crate::media::{Media, extract_media};
 use crate::tui::Theme;
-use crate::utils::register_all_cards;
+use crate::utils::{register_all_cards, resolve_missing_clozes};
 
 use anyhow::{Context, Result};
 use crossterm::event::KeyModifiers;
@@ -38,13 +38,16 @@ pub async fn run(
     new_card_limit: Option<usize>,
 ) -> Result<()> {
     let hash_cards = register_all_cards(db, paths).await?;
-    let cards_due_today = db.due_today(hash_cards, card_limit, new_card_limit).await?;
+    let mut cards_due_today = db
+        .due_today(&hash_cards, card_limit, new_card_limit)
+        .await?;
 
     if cards_due_today.is_empty() {
         println!("All caught up—no cards due today.");
         return Ok(());
     }
 
+    resolve_missing_clozes(&mut cards_due_today).await?;
     start_drill_session(db, cards_due_today).await?;
 
     Ok(())
@@ -326,47 +329,31 @@ fn format_card_text(card: &Card, show_answer: bool) -> String {
             }
             text
         }
-        CardContent::Cloze { text, start, end } => {
-            let body = if show_answer {
-                text.clone()
-            } else {
-                mask_cloze_text(text, *start, *end)
+        CardContent::Cloze { text, cloze_range } => {
+            let body = match (cloze_range, show_answer) {
+                (Some(range), false) => mask_cloze_text(text, range),
+                _ => text.clone(),
             };
-            format!("Cloze:\n{}", body)
+            format!("C:\n{}", body)
         }
     }
 }
 
-fn mask_cloze_text(text: &str, start: usize, end: usize) -> String {
-    if start >= text.len() || end >= text.len() || start >= end {
-        return text.to_string();
-    }
+fn mask_cloze_text(text: &str, range: &ClozeRange) -> String {
+    let start = range.start;
+    let end = range.end;
+    let hidden_section = &text[start..end];
+    let core = hidden_section.trim_start_matches('[').trim_end_matches(']');
+    let placeholder = "_".repeat(core.chars().count().max(3));
 
-    let open_len = text[start..]
-        .chars()
-        .next()
-        .map(|c| c.len_utf8())
-        .unwrap_or(0);
-    let close_len = text[end..]
-        .chars()
-        .next()
-        .map(|c| c.len_utf8())
-        .unwrap_or(0);
-    let inner_start = start.saturating_add(open_len);
-    let after = end.saturating_add(close_len);
-
-    if inner_start > text.len() || after > text.len() || inner_start > end {
-        return text.to_string();
-    }
-
-    let hidden_section = &text[inner_start..end];
-    let placeholder = "_".repeat(hidden_section.chars().count().max(3));
-
-    format!("{}[{}]{}", &text[..start], placeholder, &text[after..])
+    let masked = format!("{}[{}]{}", &text[..start], placeholder, &text[end..]);
+    masked
 }
 
 #[cfg(test)]
 mod tests {
+    use crate::utils::find_cloze_ranges;
+
     use super::*;
     use std::path::PathBuf;
 
@@ -384,14 +371,13 @@ mod tests {
 
     fn cloze_card(text: &str) -> Card {
         let start = text.find('[').unwrap();
-        let end = text[start..].find(']').unwrap() + start;
+        let end = text[start..].find(']').unwrap() + start + 1;
         Card {
             file_path: PathBuf::from("test.md"),
             file_card_range: (0, 1),
             content: CardContent::Cloze {
                 text: text.into(),
-                start,
-                end,
+                cloze_range: Some(ClozeRange::new(start, end).unwrap()),
             },
             card_hash: "hash".into(),
         }
@@ -411,15 +397,31 @@ mod tests {
     #[test]
     fn mask_cloze_text_handles_unicode_and_bad_ranges() {
         let text = "Capital of 日本 is [東京]";
-        let start = text.find('[').unwrap();
-        let end = text[start..].find(']').unwrap() + start;
-        let masked = mask_cloze_text(text, start, end);
-        let placeholder = extract_placeholder(&masked);
-        assert!(placeholder.chars().all(|c| c == '_'));
-        assert!(placeholder.chars().count() >= 3);
 
-        let untouched = mask_cloze_text(text, end, start);
-        assert_eq!(untouched, text);
+        let cloze_idxs = find_cloze_ranges(text);
+        let range: ClozeRange = cloze_idxs
+            .first()
+            .map(|(start, end)| ClozeRange::new(*start, *end))
+            .transpose()
+            .unwrap()
+            .unwrap();
+        let masked = mask_cloze_text(text, &range);
+        assert_eq!(masked, "Capital of 日本 is [___]");
+
+        let text = "Capital of 日本 is [longer text is in this bracket]";
+
+        let cloze_idxs = find_cloze_ranges(text);
+        let range: ClozeRange = cloze_idxs
+            .first()
+            .map(|(start, end)| ClozeRange::new(*start, *end))
+            .transpose()
+            .unwrap()
+            .unwrap();
+        let masked = mask_cloze_text(text, &range);
+        assert_eq!(
+            masked,
+            "Capital of 日本 is [______________________________]"
+        );
     }
 
     #[test]

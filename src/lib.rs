@@ -6,6 +6,7 @@ pub mod crud;
 pub mod drill;
 pub mod fsrs;
 pub mod import;
+pub mod llm;
 pub mod markdown;
 pub mod media;
 pub mod stats;
