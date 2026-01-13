@@ -2,13 +2,14 @@ use std::io;
 use std::path::PathBuf;
 use std::time::{Duration, Instant};
 
-use crate::card::{Card, CardContent, ClozeRange};
+use crate::card::{Card, CardContent};
+use crate::cloze_utils::{mask_cloze_text, resolve_missing_clozes};
 use crate::crud::DB;
 use crate::fsrs::{LEARN_AHEAD_THRESHOLD_MINS, ReviewStatus};
-use crate::markdown::render_markdown;
-use crate::media::{Media, extract_media};
+use crate::parser::register_all_cards;
+use crate::parser::render_markdown;
+use crate::parser::{Media, extract_media};
 use crate::tui::Theme;
-use crate::utils::{register_all_cards, resolve_missing_clozes};
 
 use anyhow::{Context, Result};
 use crossterm::event::KeyModifiers;
@@ -334,20 +335,9 @@ fn format_card_text(card: &Card, show_answer: bool) -> String {
     }
 }
 
-fn mask_cloze_text(text: &str, range: &ClozeRange) -> String {
-    let start = range.start;
-    let end = range.end;
-    let hidden_section = &text[start..end];
-    let core = hidden_section.trim_start_matches('[').trim_end_matches(']');
-    let placeholder = "_".repeat(core.chars().count().max(3));
-
-    let masked = format!("{}[{}]{}", &text[..start], placeholder, &text[end..]);
-    masked
-}
-
 #[cfg(test)]
 mod tests {
-    use crate::utils::find_cloze_ranges;
+    use crate::card::ClozeRange;
 
     use super::*;
     use std::path::PathBuf;
@@ -387,36 +377,6 @@ mod tests {
 
         let shown = format_card_text(&card, true);
         assert!(shown.contains("Answer"));
-    }
-
-    #[test]
-    fn mask_cloze_text_handles_unicode_and_bad_ranges() {
-        let text = "Capital of 日本 is [東京]";
-
-        let cloze_idxs = find_cloze_ranges(text);
-        let range: ClozeRange = cloze_idxs
-            .first()
-            .map(|(start, end)| ClozeRange::new(*start, *end))
-            .transpose()
-            .unwrap()
-            .unwrap();
-        let masked = mask_cloze_text(text, &range);
-        assert_eq!(masked, "Capital of 日本 is [___]");
-
-        let text = "Capital of 日本 is [longer text is in this bracket]";
-
-        let cloze_idxs = find_cloze_ranges(text);
-        let range: ClozeRange = cloze_idxs
-            .first()
-            .map(|(start, end)| ClozeRange::new(*start, *end))
-            .transpose()
-            .unwrap()
-            .unwrap();
-        let masked = mask_cloze_text(text, &range);
-        assert_eq!(
-            masked,
-            "Capital of 日本 is [______________________________]"
-        );
     }
 
     #[test]
