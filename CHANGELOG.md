@@ -3,3 +3,5 @@
 ### ⚙️ Miscellaneous Tasks
 
 - Fix cicd
+- *(release)* V0.1.0
+- Fix cicd
